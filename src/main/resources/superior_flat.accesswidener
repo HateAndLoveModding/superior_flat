@@ -1,0 +1,5 @@
+accessWidener	v1	named
+extendable	class	net/minecraft/world/gen/chunk/NoiseChunkGenerator
+extendable	class	net/minecraft/world/gen/chunk/FlatChunkGenerator
+accessible field net/minecraft/world/gen/chunk/Blender NO_BLENDING Lnet/minecraft/world/gen/chunk/Blender;
+accessible field net/minecraft/world/gen/chunk/Blender BLENDING_CHUNK_DISTANCE_THRESHOLD I

@@ -1,0 +1,7 @@
+{
+  "generator.superior_flat.superior_flat": "SuperFlat with Biomes",
+  "superior_flat.rule.generateFeatures.desc": "Generate features (trees, ice spikes, etc)",
+  "superior_flat.rule.generateAllStructures.desc": "Generate complete structures (villages, monuments, huts, etc)",
+  "superior_flat.rule.generateVillages.desc": "Generate village structures, other structures are bounding box only",
+  "superior_flat.rule.generateStrongholds.desc": "Generate stronghold structures, other structures are bounding box only"
+}
