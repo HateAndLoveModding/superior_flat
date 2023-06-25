@@ -3,19 +3,19 @@
   "id": "${id}",
   "version": "${version}",
   "name": "${name}",
-  "description": "Super flat world with biomes like normal world.",
+  "description": "Normal worlds. But they are Flat!",
   "authors": [
-    "Me!"
+    "HateAndLoveModding"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "",
+    "sources": "https://github.com/HateAndLoveModding/superior_flat"
   },
   "license": "MIT",
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.example.superior_flat.SuperFlatBiomesExtension"
+      "com.example.superior_flat.superior_flat"
     ]
   },
   "accessWidener": "superior_flat.accesswidener",

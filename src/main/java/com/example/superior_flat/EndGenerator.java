@@ -9,6 +9,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.structure.StructureSet;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.dynamic.RegistryOps;
@@ -23,19 +24,15 @@ import net.minecraft.util.math.random.Xoroshiro128PlusPlusRandom;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.registry.RegistryEntryList;
-import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
-import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.biome.source.TheEndBiomeSource;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.gen.GenerationStep;
-import net.minecraft.world.gen.HeightContext;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.Blender;
 import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
@@ -44,9 +41,7 @@ import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.feature.PlacedFeature;
 import net.minecraft.world.gen.feature.util.PlacedFeatureIndexer;
 import net.minecraft.world.gen.noise.NoiseConfig;
-import net.minecraft.world.gen.structure.JigsawStructure;
 import net.minecraft.world.gen.structure.Structure;
-import net.minecraft.world.gen.structure.StructureType;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -57,14 +52,13 @@ import java.util.stream.Collectors;
 public class EndGenerator extends NoiseChunkGenerator {
     public final Registry<DoublePerlinNoiseSampler.NoiseParameters> noiseRegistry;
     public final Supplier<List<PlacedFeatureIndexer.IndexedFeatures>> indexedFeaturesListSupplier;
-    private final List<Block> endList = Collections.unmodifiableList(SuperFlatBiomesSettings.endBlocks);
-    private final List<Block> highlandList = Collections.unmodifiableList(SuperFlatBiomesSettings.highlandBlocks);
-    private final List<Block> midlandList = Collections.unmodifiableList(SuperFlatBiomesSettings.midlandBlocks);
-    private final List<Block> barrenList = Collections.unmodifiableList(SuperFlatBiomesSettings.barrenBlocks);
-    private final List<Block> smallList = Collections.unmodifiableList(SuperFlatBiomesSettings.smallBlocks);
+    private final List<Block> endList = Collections.unmodifiableList(superior_flat_settings.endBlocks);
+    private final List<Block> highlandList = Collections.unmodifiableList(superior_flat_settings.highlandBlocks);
+    private final List<Block> midlandList = Collections.unmodifiableList(superior_flat_settings.midlandBlocks);
+    private final List<Block> barrenList = Collections.unmodifiableList(superior_flat_settings.barrenBlocks);
+    private final List<Block> smallList = Collections.unmodifiableList(superior_flat_settings.smallBlocks);
     public EndGenerator(Registry<StructureSet> structureSetRegistry, Registry<DoublePerlinNoiseSampler.NoiseParameters> noiseRegistry, BiomeSource populationSource, RegistryEntry<ChunkGeneratorSettings> settings) {
         super(structureSetRegistry, noiseRegistry, populationSource, settings);
-        SuperFlatBiomesExtension.LOGGER.info("The End class was called!");
 
         this.noiseRegistry = noiseRegistry;
         this.indexedFeaturesListSupplier = Suppliers.memoize(() -> PlacedFeatureIndexer.collectIndexedFeatures(List.copyOf(biomeSource.getBiomes()), biomeEntry -> biomeEntry.value().getGenerationSettings().getFeatures(), true));
@@ -182,7 +176,7 @@ public class EndGenerator extends NoiseChunkGenerator {
                         Supplier<String> featureNameSupplier = () -> structureRegistry.getKey(structure).map(Object::toString).orElseGet(structure::toString);
                         world.setCurrentlyGeneratingStructureName(featureNameSupplier);
 
-                        if (SuperFlatBiomesSettings.generateAllStructures) {
+                        if (superior_flat_settings.generateAllStructures) {
                             structureAccessor.getStructureStarts(chunkSectionPos, structure).forEach((start) -> {
                                 start.place(world, structureAccessor, this, chunkRandom, getBlockBoxForChunk(chunk), chunkPos);
                             });
@@ -210,7 +204,7 @@ public class EndGenerator extends NoiseChunkGenerator {
                     chunkRandom.setDecoratorSeed(populationSeed, p, genStep);
                     world.setCurrentlyGeneratingStructureName(placedFeatureNameSupplier);
                     try {
-                        if (SuperFlatBiomesSettings.generateFeatures) {
+                        if (superior_flat_settings.generateFeatures) {
                             placedFeature.generate(world, this, chunkRandom, minChunkPos);
                         }
                     } catch (Exception e) {
@@ -237,7 +231,7 @@ public class EndGenerator extends NoiseChunkGenerator {
         return new BlockBox(startX, bottomY, startZ, startX + 15, topY, startZ + 15);
     }
     static {
-        Registry.register(Registry.CHUNK_GENERATOR, new SuperFlatBiomesIdentifier("superior_flat_end"), EndGenerator.CODEC);
+        Registry.register(Registry.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID + "end"), EndGenerator.CODEC);
     }
 
 }

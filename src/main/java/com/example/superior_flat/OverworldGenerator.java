@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.block.*;
 import net.minecraft.structure.StructureSet;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.dynamic.RegistryOps;
@@ -46,14 +47,18 @@ public class OverworldGenerator extends NoiseChunkGenerator {
     public final Registry<DoublePerlinNoiseSampler.NoiseParameters> noiseRegistry;
     public final Supplier<List<PlacedFeatureIndexer.IndexedFeatures>> indexedFeaturesListSupplier;
 
-    private final List<Block> blockList = Collections.unmodifiableList(SuperFlatBiomesSettings.worldBlocks);
-    private final List<Block> riverList = Collections.unmodifiableList(SuperFlatBiomesSettings.riverBlocks);
-    private final List<Block> myceliumList = Collections.unmodifiableList(SuperFlatBiomesSettings.myceliumBlocks);
-    private final List<Block> badlandsList = Collections.unmodifiableList(SuperFlatBiomesSettings.badlandsBlocks);
-    private final List<Block> deepOceanList = Collections.unmodifiableList(SuperFlatBiomesSettings.deepOceanBlocks);
-    private final List<Block> shallowOceanList = Collections.unmodifiableList(SuperFlatBiomesSettings.shallowOceanBlocks);
-    private final List<Block> desertList = Collections.unmodifiableList(SuperFlatBiomesSettings.desertBlocks);
-    private final List<Block> beachList = Collections.unmodifiableList(SuperFlatBiomesSettings.beachBlocks);
+    private final List<Block> blockList = Collections.unmodifiableList(superior_flat_settings.worldBlocks);
+    private final List<Block> riverList = Collections.unmodifiableList(superior_flat_settings.riverBlocks);
+    private final List<Block> myceliumList = Collections.unmodifiableList(superior_flat_settings.myceliumBlocks);
+    private final List<Block> badlandsList = Collections.unmodifiableList(superior_flat_settings.badlandsBlocks);
+    private final List<Block> deepOceanList = Collections.unmodifiableList(superior_flat_settings.deepOceanBlocks);
+    private final List<Block> shallowOceanList = Collections.unmodifiableList(superior_flat_settings.shallowOceanBlocks);
+    private final List<Block> desertList = Collections.unmodifiableList(superior_flat_settings.desertBlocks);
+    private final List<Block> beachList = Collections.unmodifiableList(superior_flat_settings.beachBlocks);
+    private final List<Block> stoneList = Collections.unmodifiableList(superior_flat_settings.stoneBlocks);
+    private final List<Block> swampList = Collections.unmodifiableList(superior_flat_settings.swampBlocks);
+    private final List<Block> mangroveList = Collections.unmodifiableList(superior_flat_settings.mangroveBlocks);
+    private final List<Block> voidList = Collections.unmodifiableList(superior_flat_settings.voidBlocks);
 
     public static final Codec<OverworldGenerator> CODEC =
             RecordCodecBuilder.create(
@@ -68,7 +73,6 @@ public class OverworldGenerator extends NoiseChunkGenerator {
 
     public OverworldGenerator(Registry<StructureSet> structureSetRegistry, Registry<DoublePerlinNoiseSampler.NoiseParameters> noiseRegistry, BiomeSource populationSource, RegistryEntry<ChunkGeneratorSettings> settings) {
         super(structureSetRegistry, noiseRegistry, populationSource, settings);
-        SuperFlatBiomesExtension.LOGGER.info("The Overworld class was called!");
 
         this.noiseRegistry = noiseRegistry;
         this.indexedFeaturesListSupplier = Suppliers.memoize(() -> PlacedFeatureIndexer.collectIndexedFeatures(List.copyOf(biomeSource.getBiomes()), biomeEntry -> biomeEntry.value().getGenerationSettings().getFeatures(), true));
@@ -93,7 +97,6 @@ public class OverworldGenerator extends NoiseChunkGenerator {
     @Override
     public CompletableFuture<Chunk> populateNoise(
             Executor executor, Blender blender, NoiseConfig noiseConfig, StructureAccessor accessor, Chunk chunk) {
-        //SuperFlatBiomesExtension.LOGGER.info("The Overworld populateNoise method was called!");
         BlockPos.Mutable mutable = new BlockPos.Mutable();
         Heightmap heightmap = chunk.getHeightmap(Heightmap.Type.OCEAN_FLOOR_WG);
         Heightmap heightmap2 = chunk.getHeightmap(Heightmap.Type.WORLD_SURFACE_WG);
@@ -111,7 +114,9 @@ public class OverworldGenerator extends NoiseChunkGenerator {
                         blockState = myceliumList.get(i).getDefaultState();
                     } else if (currentBiome.equals(biomeRegistry.get(BiomeKeys.DESERT))) {
                         blockState = desertList.get(i).getDefaultState();
-                    } else if (currentBiome.equals(biomeRegistry.get(BiomeKeys.BADLANDS))) {
+                    } else if (currentBiome.equals(biomeRegistry.get(BiomeKeys.STONY_SHORE)) || currentBiome.equals(biomeRegistry.get(BiomeKeys.JAGGED_PEAKS)) || currentBiome.equals(biomeRegistry.get(BiomeKeys.FROZEN_PEAKS)) || currentBiome.equals(biomeRegistry.get(BiomeKeys.STONY_PEAKS))) {
+                        blockState = stoneList.get(i).getDefaultState();
+                    } else if (currentBiome.equals(biomeRegistry.get(BiomeKeys.BADLANDS)) || currentBiome.equals(biomeRegistry.get(BiomeKeys.WOODED_BADLANDS)) || currentBiome.equals(biomeRegistry.get(BiomeKeys.ERODED_BADLANDS))) {
                         blockState = badlandsList.get(i).getDefaultState();
                     } else if (currentBiome.equals(biomeRegistry.get(BiomeKeys.BEACH))) {
                         blockState = beachList.get(i).getDefaultState();
@@ -135,8 +140,12 @@ public class OverworldGenerator extends NoiseChunkGenerator {
                         blockState = shallowOceanList.get(i).getDefaultState();
                     } else if (currentBiome.equals(biomeRegistry.get(BiomeKeys.FROZEN_RIVER))) {
                         blockState = riverList.get(i).getDefaultState();
-                    } else if (currentBiome.equals(biomeRegistry.get(BiomeKeys.FROZEN_PEAKS))) {
-                        blockState = riverList.get(i).getDefaultState();
+                    } else if (currentBiome.equals(biomeRegistry.get(BiomeKeys.SWAMP))) {
+                        blockState = swampList.get(i).getDefaultState();
+                    } else if (currentBiome.equals(biomeRegistry.get(BiomeKeys.MANGROVE_SWAMP))) {
+                        blockState = mangroveList.get(i).getDefaultState();
+                    } else if (currentBiome.equals(biomeRegistry.get(BiomeKeys.DRIPSTONE_CAVES))) {
+                        blockState = voidList.get(i).getDefaultState();
                     } else {
                         blockState = blockList.get(i).getDefaultState();
                     }
@@ -199,18 +208,18 @@ public class OverworldGenerator extends NoiseChunkGenerator {
                         Supplier<String> featureNameSupplier = () -> structureRegistry.getKey(structure).map(Object::toString).orElseGet(structure::toString);
                         world.setCurrentlyGeneratingStructureName(featureNameSupplier);
 
-                        if (SuperFlatBiomesSettings.generateAllStructures) {
+                        if (superior_flat_settings.generateAllStructures) {
                             structureAccessor.getStructureStarts(chunkSectionPos, structure).forEach((start) -> {
                                 start.place(world, structureAccessor, this, chunkRandom, getBlockBoxForChunk(chunk), chunkPos);
                             });
                         } else {
-                            if (SuperFlatBiomesSettings.generateVillages && structure instanceof JigsawStructure) {
+                            if (superior_flat_settings.generateVillages && structure instanceof JigsawStructure) {
                                 structureAccessor.getStructureStarts(chunkSectionPos, structure).forEach((start) -> {
                                     start.place(world, structureAccessor, this, chunkRandom, getBlockBoxForChunk(chunk), chunkPos);
                                 });
                             }
 
-                            if (SuperFlatBiomesSettings.generateStrongholds && structure.getType() == StructureType.STRONGHOLD) {
+                            if (superior_flat_settings.generateStrongholds && structure.getType() == StructureType.STRONGHOLD) {
                                 structureAccessor.getStructureStarts(chunkSectionPos, structure).forEach((start) -> {
                                     start.place(world, structureAccessor, this, chunkRandom, getBlockBoxForChunk(chunk), chunkPos);
                                 });
@@ -240,7 +249,7 @@ public class OverworldGenerator extends NoiseChunkGenerator {
                     chunkRandom.setDecoratorSeed(populationSeed, p, genStep);
                     world.setCurrentlyGeneratingStructureName(placedFeatureNameSupplier);
                     try {
-                        if (SuperFlatBiomesSettings.generateFeatures) {
+                        if (superior_flat_settings.generateFeatures) {
                             placedFeature.generate(world, this, chunkRandom, minChunkPos);
                         }
                     } catch (Exception e) {
@@ -269,6 +278,6 @@ public class OverworldGenerator extends NoiseChunkGenerator {
     }
 
     static {
-        Registry.register(Registry.CHUNK_GENERATOR, new SuperFlatBiomesIdentifier("superior_flat_overworld"), OverworldGenerator.CODEC);
+        Registry.register(Registry.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID + "overworld"), OverworldGenerator.CODEC);
     }
 }

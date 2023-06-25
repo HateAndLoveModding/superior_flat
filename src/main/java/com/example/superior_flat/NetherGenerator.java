@@ -9,6 +9,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.structure.StructureSet;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.dynamic.RegistryOps;
@@ -56,15 +57,14 @@ import java.util.stream.Collectors;
 public class NetherGenerator extends NoiseChunkGenerator {
     public final Registry<DoublePerlinNoiseSampler.NoiseParameters> noiseRegistry;
     public final Supplier<List<PlacedFeatureIndexer.IndexedFeatures>> indexedFeaturesListSupplier;
-    private final List<Block> warpedList = Collections.unmodifiableList(SuperFlatBiomesSettings.warpedBlocks);
-    private final List<Block> crimsonList = Collections.unmodifiableList(SuperFlatBiomesSettings.crimsonBlocks);
-    private final List<Block> soilList = Collections.unmodifiableList(SuperFlatBiomesSettings.soilBlocks);
-    private final List<Block> sandList = Collections.unmodifiableList(SuperFlatBiomesSettings.sandBlocks);
-    private final List<Block> basaltList = Collections.unmodifiableList(SuperFlatBiomesSettings.basaltBlocks);
-    private final List<Block> netherList = Collections.unmodifiableList(SuperFlatBiomesSettings.netherBlocks);
+    private final List<Block> warpedList = Collections.unmodifiableList(superior_flat_settings.warpedBlocks);
+    private final List<Block> crimsonList = Collections.unmodifiableList(superior_flat_settings.crimsonBlocks);
+    private final List<Block> soilList = Collections.unmodifiableList(superior_flat_settings.soilBlocks);
+    private final List<Block> sandList = Collections.unmodifiableList(superior_flat_settings.sandBlocks);
+    private final List<Block> basaltList = Collections.unmodifiableList(superior_flat_settings.basaltBlocks);
+    private final List<Block> netherList = Collections.unmodifiableList(superior_flat_settings.netherBlocks);
     public NetherGenerator(Registry<StructureSet> structureSetRegistry, Registry<DoublePerlinNoiseSampler.NoiseParameters> noiseRegistry, BiomeSource populationSource, RegistryEntry<ChunkGeneratorSettings> settings) {
         super(structureSetRegistry, noiseRegistry, populationSource, settings);
-        SuperFlatBiomesExtension.LOGGER.info("The Nether class was called!");
 
         this.noiseRegistry = noiseRegistry;
         this.indexedFeaturesListSupplier = Suppliers.memoize(() -> PlacedFeatureIndexer.collectIndexedFeatures(List.copyOf(biomeSource.getBiomes()), biomeEntry -> biomeEntry.value().getGenerationSettings().getFeatures(), true));
@@ -186,18 +186,18 @@ public class NetherGenerator extends NoiseChunkGenerator {
                         Supplier<String> featureNameSupplier = () -> structureRegistry.getKey(structure).map(Object::toString).orElseGet(structure::toString);
                         world.setCurrentlyGeneratingStructureName(featureNameSupplier);
 
-                        if (SuperFlatBiomesSettings.generateAllStructures) {
+                        if (superior_flat_settings.generateAllStructures) {
                             structureAccessor.getStructureStarts(chunkSectionPos, structure).forEach((start) -> {
                                 start.place(world, structureAccessor, this, chunkRandom, getBlockBoxForChunk(chunk), chunkPos);
                             });
                         } else {
-                            if (SuperFlatBiomesSettings.generateVillages && structure instanceof JigsawStructure) {
+                            if (superior_flat_settings.generateVillages && structure instanceof JigsawStructure) {
                                 structureAccessor.getStructureStarts(chunkSectionPos, structure).forEach((start) -> {
                                     start.place(world, structureAccessor, this, chunkRandom, getBlockBoxForChunk(chunk), chunkPos);
                                 });
                             }
 
-                            if (SuperFlatBiomesSettings.generateStrongholds && structure.getType() == StructureType.STRONGHOLD) {
+                            if (superior_flat_settings.generateStrongholds && structure.getType() == StructureType.STRONGHOLD) {
                                 structureAccessor.getStructureStarts(chunkSectionPos, structure).forEach((start) -> {
                                     start.place(world, structureAccessor, this, chunkRandom, getBlockBoxForChunk(chunk), chunkPos);
                                 });
@@ -227,7 +227,7 @@ public class NetherGenerator extends NoiseChunkGenerator {
                     chunkRandom.setDecoratorSeed(populationSeed, p, genStep);
                     world.setCurrentlyGeneratingStructureName(placedFeatureNameSupplier);
                     try {
-                        if (SuperFlatBiomesSettings.generateFeatures) {
+                        if (superior_flat_settings.generateFeatures) {
                             placedFeature.generate(world, this, chunkRandom, minChunkPos);
                         }
                     } catch (Exception e) {
@@ -254,7 +254,7 @@ public class NetherGenerator extends NoiseChunkGenerator {
         return new BlockBox(startX, bottomY, startZ, startX + 15, topY, startZ + 15);
     }
     static {
-        Registry.register(Registry.CHUNK_GENERATOR, new SuperFlatBiomesIdentifier("superior_flat_nether"), NetherGenerator.CODEC);
+        Registry.register(Registry.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID + "nether"), NetherGenerator.CODEC);
     }
 
 }

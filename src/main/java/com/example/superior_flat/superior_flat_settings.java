@@ -4,11 +4,12 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import java.util.ArrayList;
 import java.util.List;
-public class SuperFlatBiomesSettings {
+public class superior_flat_settings {
     public static boolean generateFeatures = true;
     public static boolean generateAllStructures = true;
     public static boolean generateVillages = true;
     public static boolean generateStrongholds = true;
+
     public static List<Block> worldBlocks;
     public static List<Block> riverBlocks;
     public static List<Block> myceliumBlocks;
@@ -17,12 +18,18 @@ public class SuperFlatBiomesSettings {
     public static List<Block> shallowOceanBlocks;
     public static List<Block> desertBlocks;
     public static List<Block> beachBlocks;
+    public static List<Block> swampBlocks;
+    public static List<Block> stoneBlocks;
+    public static List<Block> mangroveBlocks;
+    public static List<Block> voidBlocks;
+
     public static List<Block> netherBlocks;
     public static List<Block> warpedBlocks;
     public static List<Block> crimsonBlocks;
     public static List<Block> soilBlocks;
     public static List<Block> sandBlocks;
     public static List<Block> basaltBlocks;
+
     public static List<Block> endBlocks;
     public static List<Block> highlandBlocks;
     public static List<Block> midlandBlocks;
@@ -83,6 +90,29 @@ public class SuperFlatBiomesSettings {
         for (int i = 0; i < 7; i++) {beachBlocks.add(Blocks.DIRT);}
         for (int i = 0; i < 6; i++) {beachBlocks.add(Blocks.SAND);}
 
+        stoneBlocks = new ArrayList<>();
+        stoneBlocks.add(Blocks.BEDROCK);
+        for (int i = 0; i < 65; i++) {stoneBlocks.add(Blocks.DEEPSLATE);}
+        for (int i = 0; i < 78; i++) {stoneBlocks.add(Blocks.STONE);}
+
+        swampBlocks = new ArrayList<>();
+        swampBlocks.add(Blocks.BEDROCK);
+        for (int i = 0; i < 65; i++) {swampBlocks.add(Blocks.DEEPSLATE);}
+        for (int i = 0; i < 65; i++) {swampBlocks.add(Blocks.STONE);}
+        for (int i = 0; i < 9; i++) {swampBlocks.add(Blocks.DIRT);}
+        for (int i = 0; i < 4; i++) {swampBlocks.add(Blocks.WATER);}
+
+        mangroveBlocks = new ArrayList<>();
+        mangroveBlocks.add(Blocks.BEDROCK);
+        for (int i = 0; i < 65; i++) {mangroveBlocks.add(Blocks.DEEPSLATE);}
+        for (int i = 0; i < 65; i++) {mangroveBlocks.add(Blocks.STONE);}
+        for (int i = 0; i < 11; i++) {mangroveBlocks.add(Blocks.DIRT);}
+        mangroveBlocks.add(Blocks.MUD);
+
+        voidBlocks = new ArrayList<>();
+        voidBlocks.add(Blocks.BEDROCK);
+        for (int i = 0; i < 140; i++) {voidBlocks.add(Blocks.AIR);}
+
         netherBlocks = new ArrayList<>();
         netherBlocks.add(Blocks.BEDROCK);
         for (int i = 0; i < 64; i++) {netherBlocks.add(Blocks.NETHERRACK);}
@@ -114,25 +144,20 @@ public class SuperFlatBiomesSettings {
         endBlocks = new ArrayList<>();
         for (int i = 0; i < 9; i++) {endBlocks.add(Blocks.AIR);}
         for (int i = 0; i < 17; i++) {endBlocks.add(Blocks.END_STONE);}
-        SuperFlatBiomesExtension.LOGGER.info("End blocks has " + endBlocks.size() + "elements.");
 
         highlandBlocks = new ArrayList<>();
         for (int i = 0; i < 26; i++) {highlandBlocks.add(Blocks.END_STONE);}
-        SuperFlatBiomesExtension.LOGGER.info("Highland blocks has " + highlandBlocks.size() + "elements.");
 
         midlandBlocks = new ArrayList<>();
         for (int i = 0; i < 17; i++) {midlandBlocks.add(Blocks.AIR);}
         for (int i = 0; i < 9; i++) {midlandBlocks.add(Blocks.END_STONE);}
-        SuperFlatBiomesExtension.LOGGER.info("Midland blocks has " + midlandBlocks.size() + "elements.");
 
         barrenBlocks = new ArrayList<>();
         for (int i = 0; i < 13; i++) {barrenBlocks.add(Blocks.AIR);}
         for (int i = 0; i < 13; i++) {barrenBlocks.add(Blocks.END_STONE);}
-        SuperFlatBiomesExtension.LOGGER.info("Barren blocks has " + barrenBlocks.size() + "elements.");
 
         smallBlocks = new ArrayList<>();
         for (int i = 0; i < 20; i++) {smallBlocks.add(Blocks.AIR);}
         for (int i = 0; i < 6; i++) {smallBlocks.add(Blocks.END_STONE);}
-        SuperFlatBiomesExtension.LOGGER.info("Small blocks has " + smallBlocks.size() + "elements.");
     }
 }
