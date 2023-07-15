@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "${id}",
+  "version": "${version}",
+  "name": "${name}",
+  "description": "Normal worlds. But they are Flat!",
+  "authors": [
+    "HateAndLoveModding"
+  ],
+  "contact": {
+    "homepage": "",
+    "sources": "https://github.com/HateAndLoveModding/superior_flat"
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.example.superior_flat.superior_flat"
+    ]
+  },
+  "accessWidener": "superior_flat.accesswidener",
+  "mixins": [
+    "mod.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "minecraft": ">=1.19"
+  },
+  "recommends": {
+  }
+}
