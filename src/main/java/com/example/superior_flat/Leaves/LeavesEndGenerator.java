@@ -218,13 +218,11 @@ public class LeavesEndGenerator extends NoiseChunkGenerator {
     }
 
     static {
-        for (int i = 0; i < 46; i++) {leafEndBlocks.add(Blocks.AIR);}
-        for (int i = 0; i < 24; i++) {leafEndBlocks.add(Blocks.OAK_LEAVES);}
+        for (int i = 0; i < 67; i++) {leafEndBlocks.add(Blocks.AIR);}
+        for (int i = 0; i < 3; i++) {leafEndBlocks.add(Blocks.OAK_LEAVES);}
 
         for (int i = 0; i < 46; i++) {leafEndBlocks1.add(Blocks.AIR);}
         for (int i = 0; i < 3; i++) {leafEndBlocks1.add(Blocks.OAK_LEAVES);}
         for (int i = 0; i < 21; i++) {leafEndBlocks1.add(Blocks.AIR);}
-
-        Registry.register(Registry.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID + "_end_leaves"), LeavesEndGenerator.CODEC);
     }
 }

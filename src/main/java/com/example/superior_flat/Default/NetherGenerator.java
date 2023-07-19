@@ -257,8 +257,6 @@ public class NetherGenerator extends NoiseChunkGenerator {
 
         basaltBlocks.add(Blocks.BEDROCK);
         for (int i = 0; i < 64; i++) {basaltBlocks.add(Blocks.NETHERRACK);}
-
-        Registry.register(Registry.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID + "nether"), NetherGenerator.CODEC);
     }
 
 }

@@ -19,16 +19,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.noise.DoublePerlinNoiseSampler;
+import net.minecraft.util.math.random.CheckedRandom;
 import net.minecraft.util.math.random.ChunkRandom;
 import net.minecraft.util.math.random.RandomSeed;
 import net.minecraft.util.math.random.Xoroshiro128PlusPlusRandom;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.registry.RegistryEntryList;
-import net.minecraft.world.ChunkRegion;
-import net.minecraft.world.HeightLimitView;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.StructureWorldAccess;
+import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.biome.source.BiomeAccess;
@@ -38,10 +36,7 @@ import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.HeightContext;
 import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.Blender;
-import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
-import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
-import net.minecraft.world.gen.chunk.VerticalBlockSample;
+import net.minecraft.world.gen.chunk.*;
 import net.minecraft.world.gen.feature.PlacedFeature;
 import net.minecraft.world.gen.feature.util.PlacedFeatureIndexer;
 import net.minecraft.world.gen.noise.NoiseConfig;
@@ -103,6 +98,16 @@ public class OverworldGenerator extends NoiseChunkGenerator {
     @Override
     public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world, NoiseConfig noiseConfig) {
         return new VerticalBlockSample(world.getBottomY(), worldBlocks.stream().limit(world.getHeight()).map((state) -> state == null ? Blocks.AIR.getDefaultState() : state.getDefaultState()).toArray(BlockState[]::new));
+    }
+    @Override
+    public void populateEntities(ChunkRegion region) {
+        if (!((ChunkGeneratorSettings)this.settings.value()).mobGenerationDisabled()) {
+            ChunkPos chunkPos = region.getCenterPos();
+            RegistryEntry<Biome> registryEntry = region.getBiome(chunkPos.getStartPos().withY(region.getTopY() - 1));
+            ChunkRandom chunkRandom = new ChunkRandom(new CheckedRandom(RandomSeed.getSeed()));
+            chunkRandom.setPopulationSeed(region.getSeed(), chunkPos.getStartX(), chunkPos.getStartZ());
+            SpawnHelper.populateEntities(region, registryEntry, chunkPos, chunkRandom);
+        }
     }
     @Override
     public CompletableFuture<Chunk> populateNoise(
@@ -331,7 +336,5 @@ public class OverworldGenerator extends NoiseChunkGenerator {
         mangroveBlocks.add(Blocks.MUD);
 
         for (int i = 0; i < 143; i++) {voidBlocks.add(Blocks.CAVE_AIR);}
-
-        Registry.register(Registry.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID + "overworld"), OverworldGenerator.CODEC);
     }
 }

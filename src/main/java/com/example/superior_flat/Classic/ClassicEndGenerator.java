@@ -4,6 +4,7 @@ import com.example.superior_flat.superior_flat;
 import com.google.common.base.Suppliers;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -23,6 +24,7 @@ import net.minecraft.util.math.random.RandomSeed;
 import net.minecraft.util.math.random.Xoroshiro128PlusPlusRandom;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.util.registry.RegistryEntryList;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.StructureWorldAccess;
@@ -37,14 +39,12 @@ import net.minecraft.world.gen.chunk.Blender;
 import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
 import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
+import net.minecraft.world.gen.feature.PlacedFeature;
 import net.minecraft.world.gen.feature.util.PlacedFeatureIndexer;
 import net.minecraft.world.gen.noise.NoiseConfig;
 import net.minecraft.world.gen.structure.Structure;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
@@ -147,6 +147,7 @@ public class ClassicEndGenerator extends NoiseChunkGenerator {
 
         int numIndexedFeatures = indexedFeatures.size();
         try {
+            Registry<PlacedFeature> placedFeatures = world.getRegistryManager().get(Registry.PLACED_FEATURE_KEY);
             int numSteps = Math.max(GenerationStep.Feature.values().length, numIndexedFeatures);
             for (int genStep = 0; genStep < numSteps; ++genStep) {
                 int m = 0;
@@ -162,7 +163,35 @@ public class ClassicEndGenerator extends NoiseChunkGenerator {
                         ++m;
                     }
                 }
+                if (genStep >= numIndexedFeatures) continue;
+                IntArraySet intSet = new IntArraySet();
+                for (Biome biome : biomeSet) {
+                    List<RegistryEntryList<PlacedFeature>> biomeFeatureStepList = biome.getGenerationSettings().getFeatures();
+                    if (genStep >= biomeFeatureStepList.size()) continue;
+                    RegistryEntryList<PlacedFeature> biomeFeaturesForStep = biomeFeatureStepList.get(genStep);
+                    PlacedFeatureIndexer.IndexedFeatures indexedFeature = indexedFeatures.get(genStep);
+                    biomeFeaturesForStep.stream().map(RegistryEntry::value).forEach(placedFeature -> intSet.add(indexedFeature.indexMapping().applyAsInt(placedFeature)));
+                }
+                int n = intSet.size();
+                int[] is = intSet.toIntArray();
+                Arrays.sort(is);
+                PlacedFeatureIndexer.IndexedFeatures indexedFeature = indexedFeatures.get(genStep);
+                for (int o = 0; o < n; ++o) {
+                    int p = is[o];
+                    PlacedFeature placedFeature = indexedFeature.features().get(p);
+                    Supplier<String> placedFeatureNameSupplier = () -> placedFeatures.getKey(placedFeature).map(Object::toString).orElseGet(placedFeature::toString);
+                    chunkRandom.setDecoratorSeed(populationSeed, p, genStep);
+                    world.setCurrentlyGeneratingStructureName(placedFeatureNameSupplier);
+                    try {
+                        placedFeature.generate(world, this, chunkRandom, minChunkPos);
+                    } catch (Exception e) {
+                        CrashReport crashReport = CrashReport.create(e, "Feature placement");
+                        crashReport.addElement("Feature").add("Description", placedFeatureNameSupplier::get);
+                        throw new CrashException(crashReport);
+                    }
+                }
             }
+            world.setCurrentlyGeneratingStructureName(null);
         } catch (Exception e) {
             CrashReport crashReport = CrashReport.create(e, "Biome decoration");
             crashReport.addElement("Generation").add("CenterX", chunkPos.x).add("CenterZ", chunkPos.z).add("Seed", populationSeed);
@@ -189,7 +218,5 @@ public class ClassicEndGenerator extends NoiseChunkGenerator {
         for (int i = 0; i < 21; i++) {classicEndBlocks1.add(Blocks.AIR);}
 
         for (int i = 0; i < 70; i++) {classicVoidBlocks.add(Blocks.AIR);}
-
-        Registry.register(Registry.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID + "classic_end"), ClassicEndGenerator.CODEC);
         }
 }

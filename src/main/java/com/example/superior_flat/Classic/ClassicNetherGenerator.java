@@ -190,7 +190,5 @@ public class ClassicNetherGenerator extends NoiseChunkGenerator {
         for (int i = 0; i < 65; i++) {classicNetherBlocks.add(Blocks.AIR);}
         classicNetherBlocks.add(Blocks.BEDROCK);
         for (int i = 0; i < 3; i++) {classicNetherBlocks.add(Blocks.NETHERRACK);}
-
-        Registry.register(Registry.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID + "classic_nether"), ClassicNetherGenerator.CODEC);
     }
 }

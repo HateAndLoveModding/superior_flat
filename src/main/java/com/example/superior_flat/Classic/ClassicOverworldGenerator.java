@@ -192,7 +192,5 @@ public class ClassicOverworldGenerator extends NoiseChunkGenerator {
         classicOverworldBlocks.add(Blocks.BEDROCK);
         for (int i = 0; i < 2; i++) {classicOverworldBlocks.add(Blocks.DIRT);}
         classicOverworldBlocks.add(Blocks.GRASS_BLOCK);
-
-        Registry.register(Registry.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID + "classic_overworld"), ClassicOverworldGenerator.CODEC);
     }
 }

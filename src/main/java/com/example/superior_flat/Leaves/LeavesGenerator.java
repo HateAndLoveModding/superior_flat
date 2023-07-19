@@ -215,7 +215,5 @@ public class LeavesGenerator extends NoiseChunkGenerator {
     static {
         for (int i = 0; i < 65; i++) {leafBlocks.add(Blocks.AIR);}
         for (int i = 0; i < 3; i++) {leafBlocks.add(Blocks.OAK_LEAVES);}
-
-        Registry.register(Registry.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID + "leaves"), LeavesGenerator.CODEC);
     }
 }

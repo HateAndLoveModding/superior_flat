@@ -246,8 +246,6 @@ public class EndGenerator extends NoiseChunkGenerator {
 
         for (int i = 0; i < 50; i++) {endBlocks19.add(Blocks.AIR);}
         for (int i = 0; i < 20; i++) {endBlocks19.add(Blocks.END_STONE);}
-
-        Registry.register(Registry.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID + "end"), EndGenerator.CODEC);
     }
 
 }
