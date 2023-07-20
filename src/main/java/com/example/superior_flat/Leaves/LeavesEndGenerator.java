@@ -1,6 +1,5 @@
 package com.example.superior_flat.Leaves;
 
-import com.example.superior_flat.superior_flat;
 import com.google.common.base.Suppliers;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -9,22 +8,19 @@ import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.structure.StructureSet;
-import net.minecraft.util.Identifier;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
-import net.minecraft.util.dynamic.RegistryOps;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.noise.DoublePerlinNoiseSampler;
 import net.minecraft.util.math.random.ChunkRandom;
 import net.minecraft.util.math.random.RandomSeed;
 import net.minecraft.util.math.random.Xoroshiro128PlusPlusRandom;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryEntryList;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.Heightmap;
@@ -36,12 +32,11 @@ import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.gen.GenerationStep;
-import net.minecraft.world.gen.HeightContext;
 import net.minecraft.world.gen.StructureAccessor;
+import net.minecraft.world.gen.chunk.AquiferSampler;
 import net.minecraft.world.gen.chunk.Blender;
 import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
 import net.minecraft.world.gen.chunk.NoiseChunkGenerator;
-import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.feature.PlacedFeature;
 import net.minecraft.world.gen.feature.util.PlacedFeatureIndexer;
 import net.minecraft.world.gen.noise.NoiseConfig;
@@ -54,26 +49,27 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class LeavesEndGenerator extends NoiseChunkGenerator {
-    public final Registry<DoublePerlinNoiseSampler.NoiseParameters> noiseRegistry;
+    public final RegistryEntry<ChunkGeneratorSettings> settings;
+    public final Supplier<AquiferSampler.FluidLevelSampler> fluidLevelSampler;
     public final Supplier<List<PlacedFeatureIndexer.IndexedFeatures>> indexedFeaturesListSupplier;
     public static List<Block> leafEndBlocks = new ArrayList<>();
     public static List<Block> leafEndBlocks1 = new ArrayList<>();
 
-    public static final Codec<LeavesEndGenerator> CODEC =
-            RecordCodecBuilder.create(
-                    instance ->
-                            NoiseChunkGenerator.createStructureSetRegistryGetter(instance).and(
-                                            instance
-                                                    .group(
-                                                            RegistryOps.createRegistryCodec(Registry.NOISE_KEY).forGetter(generator -> generator.noiseRegistry),
-                                                            (BiomeSource.CODEC.fieldOf("biome_source")).forGetter(LeavesEndGenerator::getBiomeSource),
-                                                            (ChunkGeneratorSettings.REGISTRY_CODEC.fieldOf("settings")).forGetter(LeavesEndGenerator::getSettings)))
-                                    .apply(instance, instance.stable(LeavesEndGenerator::new)));
+    public static final Codec<LeavesEndGenerator> CODEC = RecordCodecBuilder.create((instance) -> {
+        return instance.group(BiomeSource.CODEC.fieldOf("biome_source").forGetter((generator) -> {
+            return generator.biomeSource;
+        }), ChunkGeneratorSettings.REGISTRY_CODEC.fieldOf("settings").forGetter((generator) -> {
+            return generator.settings;
+        })).apply(instance, instance.stable(LeavesEndGenerator::new));
+    });
 
-    public LeavesEndGenerator(Registry<StructureSet> structureSetRegistry, Registry<DoublePerlinNoiseSampler.NoiseParameters> noiseRegistry, BiomeSource populationSource, RegistryEntry<ChunkGeneratorSettings> settings) {
-        super(structureSetRegistry, noiseRegistry, populationSource, settings);
+    public LeavesEndGenerator(BiomeSource biomeSource, RegistryEntry<ChunkGeneratorSettings> settings) {
+        super(biomeSource, settings);
 
-        this.noiseRegistry = noiseRegistry;
+        this.settings = settings;
+        this.fluidLevelSampler = Suppliers.memoize(() -> {
+            return createFluidLevelSampler(settings.value());
+        });
         this.indexedFeaturesListSupplier = Suppliers.memoize(() -> PlacedFeatureIndexer.collectIndexedFeatures(List.copyOf(biomeSource.getBiomes()), biomeEntry -> biomeEntry.value().getGenerationSettings().getFeatures(), true));
     }
 
@@ -96,7 +92,7 @@ public class LeavesEndGenerator extends NoiseChunkGenerator {
         Heightmap heightmap = chunk.getHeightmap(Heightmap.Type.MOTION_BLOCKING);
         Heightmap heightmap2 = chunk.getHeightmap(Heightmap.Type.WORLD_SURFACE_WG);
 
-        Registry<Biome> biomeRegistry = accessor.getRegistryManager().get(Registry.BIOME_KEY);
+        Registry<Biome> biomeRegistry = accessor.getRegistryManager().get(RegistryKeys.BIOME);
         for (int i = 0; i < Math.min(chunk.getHeight(), leafEndBlocks.size()); ++i) {
             BlockState blockState;
             for (int k = 0; k < 16; ++k) {
@@ -117,9 +113,6 @@ public class LeavesEndGenerator extends NoiseChunkGenerator {
         return CompletableFuture.completedFuture(chunk);
     }
     @Override
-    public void buildSurface(Chunk chunk, HeightContext heightContext, NoiseConfig noiseConfig, StructureAccessor structureAccessor, BiomeAccess biomeAccess, Registry<Biome> biomeRegistry, Blender blender) {}
-
-    @Override
     public void carve(ChunkRegion chunkRegion, long seed, NoiseConfig noiseConfig, BiomeAccess biomeAccess, StructureAccessor structureAccessor, Chunk chunk, GenerationStep.Carver carverStep) {
     }
 
@@ -136,7 +129,7 @@ public class LeavesEndGenerator extends NoiseChunkGenerator {
         ChunkSectionPos chunkSectionPos = ChunkSectionPos.from(chunkPos, world.getBottomSectionCoord());
         BlockPos minChunkPos = chunkSectionPos.getMinPos();
 
-        Registry<Structure> structureRegistry = world.getRegistryManager().get(Registry.STRUCTURE_KEY);
+        Registry<Structure> structureRegistry = world.getRegistryManager().get(RegistryKeys.STRUCTURE);
         Map<Integer, List<Structure>> structuresByStep = structureRegistry.stream().collect(Collectors.groupingBy(structureType -> structureType.getFeatureGenerationStep().ordinal()));
         List<PlacedFeatureIndexer.IndexedFeatures> indexedFeatures = this.indexedFeaturesListSupplier.get();
 
@@ -155,7 +148,7 @@ public class LeavesEndGenerator extends NoiseChunkGenerator {
 
         int numIndexedFeatures = indexedFeatures.size();
         try {
-            Registry<PlacedFeature> placedFeatures = world.getRegistryManager().get(Registry.PLACED_FEATURE_KEY);
+            Registry<PlacedFeature> placedFeatures = world.getRegistryManager().get(RegistryKeys.PLACED_FEATURE);
             int numSteps = Math.max(GenerationStep.Feature.values().length, numIndexedFeatures);
             for (int genStep = 0; genStep < numSteps; ++genStep) {
                 int m = 0;

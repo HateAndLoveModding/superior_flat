@@ -9,8 +9,9 @@ import com.example.superior_flat.Default.OverworldGenerator;
 import com.example.superior_flat.Leaves.LeavesEndGenerator;
 import com.example.superior_flat.Leaves.LeavesGenerator;
 import net.fabricmc.api.ModInitializer;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,15 +22,15 @@ public class superior_flat implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     @Override
     public void onInitialize() {
-        Registry.register(Registry.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID, "overworld"), OverworldGenerator.CODEC);
-        Registry.register(Registry.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID, "nether"), NetherGenerator.CODEC);
-        Registry.register(Registry.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID, "end"), EndGenerator.CODEC);
+        Registry.register(Registries.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID, "overworld"), OverworldGenerator.CODEC);
+        Registry.register(Registries.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID, "nether"), NetherGenerator.CODEC);
+        Registry.register(Registries.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID, "end"), EndGenerator.CODEC);
 
-        Registry.register(Registry.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID, "classic_overworld"), ClassicOverworldGenerator.CODEC);
-        Registry.register(Registry.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID, "classic_nether"), ClassicNetherGenerator.CODEC);
-        Registry.register(Registry.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID, "classic_end"), ClassicEndGenerator.CODEC);
+        Registry.register(Registries.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID, "classic_overworld"), ClassicOverworldGenerator.CODEC);
+        Registry.register(Registries.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID, "classic_nether"), ClassicNetherGenerator.CODEC);
+        Registry.register(Registries.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID, "classic_end"), ClassicEndGenerator.CODEC);
 
-        Registry.register(Registry.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID, "end_leaves"), LeavesEndGenerator.CODEC);
-        Registry.register(Registry.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID, "leaves"), LeavesGenerator.CODEC);
+        Registry.register(Registries.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID, "end_leaves"), LeavesEndGenerator.CODEC);
+        Registry.register(Registries.CHUNK_GENERATOR, new Identifier(superior_flat.MOD_ID, "leaves"), LeavesGenerator.CODEC);
     }
 }
