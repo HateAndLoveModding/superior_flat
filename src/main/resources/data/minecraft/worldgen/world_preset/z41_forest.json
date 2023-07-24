@@ -126,18 +126,6 @@
                 "depth": 0,
                 "offset": 0
               }
-            },
-            {
-              "biome": "minecraft:cherry_grove",
-              "parameters": {
-                "temperature": 0.11,
-                "humidity": 0,
-                "continentalness": 0,
-                "erosion": 0,
-                "weirdness": 0.66,
-                "depth": 0,
-                "offset": 0
-              }
             }
           ]
         },
