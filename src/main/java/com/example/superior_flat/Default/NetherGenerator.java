@@ -54,7 +54,6 @@ public class NetherGenerator extends NoiseChunkGenerator {
     public static List<Block> crimsonBlocks = new ArrayList<>();
     public static List<Block> soilBlocks = new ArrayList<>();
     public static List<Block> sandBlocks = new ArrayList<>();
-    public static List<Block> basaltBlocks = new ArrayList<>();
     public static List<Block> netherBlocks = new ArrayList<>();
     public NetherGenerator(BiomeSource biomeSource, RegistryEntry<ChunkGeneratorSettings> settings) {
         super(biomeSource, settings);
@@ -116,8 +115,6 @@ public class NetherGenerator extends NoiseChunkGenerator {
                         } else {
                             blockState = sandBlocks.get(i).getDefaultState();
                         }
-                    } else if (currentBiome.equals(biomeRegistry.get(BiomeKeys.BASALT_DELTAS))) {
-                        blockState = basaltBlocks.get(i).getDefaultState();
                     } else {
                         blockState = netherBlocks.get(i).getDefaultState();
                     }
@@ -144,91 +141,6 @@ public class NetherGenerator extends NoiseChunkGenerator {
     protected Codec<? extends NetherGenerator> getCodec() {
         return CODEC;
     }
-    @Override
-    public void generateFeatures(StructureWorldAccess world, Chunk chunk, StructureAccessor structureAccessor) {
-        ChunkPos chunkPos = chunk.getPos();
-        ChunkSectionPos chunkSectionPos = ChunkSectionPos.from(chunkPos, world.getBottomSectionCoord());
-        BlockPos minChunkPos = chunkSectionPos.getMinPos();
-
-        Registry<Structure> structureRegistry = world.getRegistryManager().get(RegistryKeys.STRUCTURE);
-        Map<Integer, List<Structure>> structuresByStep = structureRegistry.stream().collect(Collectors.groupingBy(structureType -> structureType.getFeatureGenerationStep().ordinal()));
-        List<PlacedFeatureIndexer.IndexedFeatures> indexedFeatures = this.indexedFeaturesListSupplier.get();
-
-        ChunkRandom chunkRandom = new ChunkRandom(new Xoroshiro128PlusPlusRandom(RandomSeed.getSeed()));
-        long populationSeed = chunkRandom.setPopulationSeed(world.getSeed(), minChunkPos.getX(), minChunkPos.getZ());
-
-        // Get all surrounding biomes for biome-based structures
-        ObjectArraySet<Biome> biomeSet = new ObjectArraySet<>();
-        ChunkPos.stream(chunkSectionPos.toChunkPos(), 1).forEach(curChunkPos -> {
-            Chunk curChunk = world.getChunk(curChunkPos.x, curChunkPos.z);
-            for (ChunkSection chunkSection : curChunk.getSectionArray()) {
-                chunkSection.getBiomeContainer().forEachValue(registryEntry -> biomeSet.add(registryEntry.value()));
-            }
-        });
-        biomeSet.retainAll(this.biomeSource.getBiomes().stream().map(RegistryEntry::value).collect(Collectors.toSet()));
-
-        int numIndexedFeatures = indexedFeatures.size();
-        try {
-            Registry<PlacedFeature> placedFeatures = world.getRegistryManager().get(RegistryKeys.PLACED_FEATURE);
-            int numSteps = Math.max(GenerationStep.Feature.values().length, numIndexedFeatures);
-            for (int genStep = 0; genStep < numSteps; ++genStep) {
-                int m = 0;
-                if (structureAccessor.shouldGenerateStructures()) {
-                    List<Structure> structuresForStep = structuresByStep.getOrDefault(genStep, Collections.emptyList());
-                    for (Structure structure : structuresForStep) {
-                        chunkRandom.setDecoratorSeed(populationSeed, m, genStep);
-                        Supplier<String> featureNameSupplier = () -> structureRegistry.getKey(structure).map(Object::toString).orElseGet(structure::toString);
-                        world.setCurrentlyGeneratingStructureName(featureNameSupplier);
-                        structureAccessor.getStructureStarts(chunkSectionPos, structure).forEach((start) -> {
-                            start.place(world, structureAccessor, this, chunkRandom, getBlockBoxForChunk(chunk), chunkPos);
-                        });
-                        ++m;
-                    }
-                }
-                if (genStep >= numIndexedFeatures) continue;
-                IntArraySet intSet = new IntArraySet();
-                for (Biome biome : biomeSet) {
-                    List<RegistryEntryList<PlacedFeature>> biomeFeatureStepList = biome.getGenerationSettings().getFeatures();
-                    if (genStep >= biomeFeatureStepList.size()) continue;
-                    RegistryEntryList<PlacedFeature> biomeFeaturesForStep = biomeFeatureStepList.get(genStep);
-                    PlacedFeatureIndexer.IndexedFeatures indexedFeature = indexedFeatures.get(genStep);
-                    biomeFeaturesForStep.stream().map(RegistryEntry::value).forEach(placedFeature -> intSet.add(indexedFeature.indexMapping().applyAsInt(placedFeature)));
-                }
-                int n = intSet.size();
-                int[] is = intSet.toIntArray();
-                Arrays.sort(is);
-                PlacedFeatureIndexer.IndexedFeatures indexedFeature = indexedFeatures.get(genStep);
-                for (int o = 0; o < n; ++o) {
-                    int p = is[o];
-                    PlacedFeature placedFeature = indexedFeature.features().get(p);
-                    Supplier<String> placedFeatureNameSupplier = () -> placedFeatures.getKey(placedFeature).map(Object::toString).orElseGet(placedFeature::toString);
-                    chunkRandom.setDecoratorSeed(populationSeed, p, genStep);
-                    world.setCurrentlyGeneratingStructureName(placedFeatureNameSupplier);
-                    try {
-                        placedFeature.generate(world, this, chunkRandom, minChunkPos);
-                    } catch (Exception e) {
-                        CrashReport crashReport = CrashReport.create(e, "Feature placement");
-                        crashReport.addElement("Feature").add("Description", placedFeatureNameSupplier::get);
-                        throw new CrashException(crashReport);
-                    }
-                }
-            }
-            world.setCurrentlyGeneratingStructureName(null);
-        } catch (Exception e) {
-            CrashReport crashReport = CrashReport.create(e, "Biome decoration");
-            crashReport.addElement("Generation").add("CenterX", chunkPos.x).add("CenterZ", chunkPos.z).add("Seed", populationSeed);
-            throw new CrashException(crashReport);
-        }
-    }
-    private static BlockBox getBlockBoxForChunk(Chunk chunk) {
-        ChunkPos chunkPos = chunk.getPos();
-        int startX = chunkPos.getStartX();
-        int startZ = chunkPos.getStartZ();
-        HeightLimitView heightLimitView = chunk.getHeightLimitView();
-        int bottomY = heightLimitView.getBottomY() + 1;
-        int topY = heightLimitView.getTopY() - 1;
-        return new BlockBox(startX, bottomY, startZ, startX + 15, topY, startZ + 15);
-    }
 
     static {
         netherBlocks.add(Blocks.BEDROCK);
@@ -249,9 +161,6 @@ public class NetherGenerator extends NoiseChunkGenerator {
         sandBlocks.add(Blocks.BEDROCK);
         for (int i = 0; i < 63; i++) {sandBlocks.add(Blocks.NETHERRACK);}
         sandBlocks.add(Blocks.SOUL_SAND);
-
-        basaltBlocks.add(Blocks.BEDROCK);
-        for (int i = 0; i < 64; i++) {basaltBlocks.add(Blocks.NETHERRACK);}
     }
 
 }

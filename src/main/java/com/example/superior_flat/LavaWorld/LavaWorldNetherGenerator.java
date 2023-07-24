@@ -1,67 +1,47 @@
-package com.example.superior_flat.Classic;
+package com.example.superior_flat.LavaWorld;
 
 import com.google.common.base.Suppliers;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.crash.CrashException;
-import net.minecraft.util.crash.CrashReport;
-import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.random.ChunkRandom;
-import net.minecraft.util.math.random.RandomSeed;
-import net.minecraft.util.math.random.Xoroshiro128PlusPlusRandom;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.Heightmap;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.gen.GenerationStep;
-import net.minecraft.world.gen.HeightContext;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.*;
 import net.minecraft.world.gen.feature.util.PlacedFeatureIndexer;
 import net.minecraft.world.gen.noise.NoiseConfig;
-import net.minecraft.world.gen.structure.JigsawStructure;
-import net.minecraft.world.gen.structure.Structure;
-import net.minecraft.world.gen.structure.StructureType;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
-public class ClassicOverworldGenerator extends NoiseChunkGenerator {
+public class LavaWorldNetherGenerator extends NoiseChunkGenerator {
     public final RegistryEntry<ChunkGeneratorSettings> settings;
     public final Supplier<AquiferSampler.FluidLevelSampler> fluidLevelSampler;
     public final Supplier<List<PlacedFeatureIndexer.IndexedFeatures>> indexedFeaturesListSupplier;
-    public static List<Block> classicOverworldBlocks = new ArrayList<>();
 
-    public static final Codec<ClassicOverworldGenerator> CODEC = RecordCodecBuilder.create((instance) -> {
+    public static List<Block> lavaNetherBlocks = new ArrayList<>();
+
+    public static final Codec<LavaWorldNetherGenerator> CODEC = RecordCodecBuilder.create((instance) -> {
         return instance.group(BiomeSource.CODEC.fieldOf("biome_source").forGetter((generator) -> {
             return generator.biomeSource;
         }), ChunkGeneratorSettings.REGISTRY_CODEC.fieldOf("settings").forGetter((generator) -> {
             return generator.settings;
-        })).apply(instance, instance.stable(ClassicOverworldGenerator::new));
+        })).apply(instance, instance.stable(LavaWorldNetherGenerator::new));
     });
 
-    public ClassicOverworldGenerator(BiomeSource biomeSource, RegistryEntry<ChunkGeneratorSettings> settings) {
+    public LavaWorldNetherGenerator(BiomeSource biomeSource, RegistryEntry<ChunkGeneratorSettings> settings) {
         super(biomeSource, settings);
 
         this.settings = settings;
@@ -74,8 +54,8 @@ public class ClassicOverworldGenerator extends NoiseChunkGenerator {
 
     @Override
     public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world, NoiseConfig noiseConfig) {
-        for(int i = Math.min(classicOverworldBlocks.size(), world.getTopY()) - 1; i >= 0; --i) {
-            BlockState blockState = classicOverworldBlocks.get(i).getDefaultState();
+        for(int i = Math.min(lavaNetherBlocks.size(), world.getTopY()) - 1; i >= 0; --i) {
+            BlockState blockState = lavaNetherBlocks.get(i).getDefaultState();
             if (blockState != null && heightmap.getBlockPredicate().test(blockState)) {
                 return world.getBottomY() + i + 1;
             }
@@ -86,7 +66,7 @@ public class ClassicOverworldGenerator extends NoiseChunkGenerator {
 
     @Override
     public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world, NoiseConfig noiseConfig) {
-        return new VerticalBlockSample(world.getBottomY(), classicOverworldBlocks.stream().limit(world.getHeight()).map((state) -> state == null ? Blocks.AIR.getDefaultState() : state.getDefaultState()).toArray(BlockState[]::new));
+        return new VerticalBlockSample(world.getBottomY(), lavaNetherBlocks.stream().limit(world.getHeight()).map((state) -> state == null ? Blocks.AIR.getDefaultState() : state.getDefaultState()).toArray(BlockState[]::new));
     }
     @Override
     public CompletableFuture<Chunk> populateNoise(
@@ -94,8 +74,8 @@ public class ClassicOverworldGenerator extends NoiseChunkGenerator {
         BlockPos.Mutable mutable = new BlockPos.Mutable();
         Heightmap heightmap = chunk.getHeightmap(Heightmap.Type.OCEAN_FLOOR_WG);
         Heightmap heightmap2 = chunk.getHeightmap(Heightmap.Type.WORLD_SURFACE_WG);
-        for (int i = 0; i < Math.min(chunk.getHeight(), classicOverworldBlocks.size()); ++i) {
-            BlockState blockState = classicOverworldBlocks.get(i).getDefaultState();
+        for (int i = 0; i < Math.min(chunk.getHeight(), lavaNetherBlocks.size()); ++i) {
+            BlockState blockState = lavaNetherBlocks.get(i).getDefaultState();
             for (int k = 0; k < 16; ++k) {
                 for (int l = 0; l < 16; ++l) {
                     mutable.set(k, i - 63, l);
@@ -116,13 +96,14 @@ public class ClassicOverworldGenerator extends NoiseChunkGenerator {
     public void buildSurface(ChunkRegion region, StructureAccessor structures, NoiseConfig noiseConfig, Chunk chunk) {
     }
     @Override
-    protected Codec<? extends ClassicOverworldGenerator> getCodec() {
+    protected Codec<? extends LavaWorldNetherGenerator> getCodec() {
         return CODEC;
     }
 
     static {
-        classicOverworldBlocks.add(Blocks.BEDROCK);
-        for (int i = 0; i < 2; i++) {classicOverworldBlocks.add(Blocks.DIRT);}
-        classicOverworldBlocks.add(Blocks.GRASS_BLOCK);
+        for (int i = 0; i < 63; i++) {lavaNetherBlocks.add(Blocks.AIR);}
+        lavaNetherBlocks.add(Blocks.BEDROCK);
+        for (int i = 0; i < 64; i++) {lavaNetherBlocks.add(Blocks.NETHERRACK);}
+        for (int i = 0; i < 20; i++) {lavaNetherBlocks.add(Blocks.LAVA);}
     }
 }

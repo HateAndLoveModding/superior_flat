@@ -1,0 +1,169 @@
+{
+  "dimensions": {
+    "minecraft:overworld": {
+      "type": "minecraft:overworld",
+      "generator": {
+        "type": "superior_flat:overworld",
+        "biome_source": {
+          "type": "minecraft:multi_noise",
+          "biomes": [
+            {
+              "biome": "minecraft:taiga",
+              "parameters": {
+                "temperature": 0.01,
+                "humidity": 0,
+                "continentalness": 0,
+                "erosion": 0,
+                "weirdness": 0,
+                "depth": 0,
+                "offset": 0
+              }
+            },
+            {
+              "biome": "minecraft:forest",
+              "parameters": {
+                "temperature": 0.02,
+                "humidity": 0,
+                "continentalness": 0,
+                "erosion": 0,
+                "weirdness": 0.1,
+                "depth": 0,
+                "offset": 0
+              }
+            },
+            {
+              "biome": "minecraft:flower_forest",
+              "parameters": {
+                "temperature": 0.03,
+                "humidity": 0,
+                "continentalness": 0,
+                "erosion": 0,
+                "weirdness": 0.2,
+                "depth": 0,
+                "offset": 0
+              }
+            },
+            {
+              "biome": "minecraft:bamboo_jungle",
+              "parameters": {
+                "temperature": 0.04,
+                "humidity": 0,
+                "continentalness": 0,
+                "erosion": 0,
+                "weirdness": 0.3,
+                "depth": 0,
+                "offset": 0
+              }
+            },
+            {
+              "biome": "minecraft:birch_forest",
+              "parameters": {
+                "temperature": 0.05,
+                "humidity": 0,
+                "continentalness": 0,
+                "erosion": 0,
+                "weirdness": 0.05,
+                "depth": 0,
+                "offset": 0
+              }
+            },
+            {
+              "biome": "minecraft:dark_forest",
+              "parameters": {
+                "temperature": 0.06,
+                "humidity": 0,
+                "continentalness": 0,
+                "erosion": 0,
+                "weirdness": 0.15,
+                "depth": 0,
+                "offset": 0
+              }
+            },
+            {
+              "biome": "minecraft:sparse_jungle",
+              "parameters": {
+                "temperature": 0.07,
+                "humidity": 0,
+                "continentalness": 0,
+                "erosion": 0,
+                "weirdness": 0.25,
+                "depth": 0,
+                "offset": 0
+              }
+            },
+            {
+              "biome": "minecraft:savanna",
+              "parameters": {
+                "temperature": 0.08,
+                "humidity": 0,
+                "continentalness": 0,
+                "erosion": 0,
+                "weirdness": 0.35,
+                "depth": 0,
+                "offset": 0
+              }
+            },
+            {
+              "biome": "minecraft:swamp",
+              "parameters": {
+                "temperature": 0.09,
+                "humidity": 0,
+                "continentalness": 0,
+                "erosion": 0,
+                "weirdness": 0.37,
+                "depth": 0,
+                "offset": 0
+              }
+            },
+            {
+              "biome": "minecraft:mangrove_swamp",
+              "parameters": {
+                "temperature": 0.1,
+                "humidity": 0,
+                "continentalness": 0,
+                "erosion": 0,
+                "weirdness": 0.5,
+                "depth": 0,
+                "offset": 0
+              }
+            },
+            {
+              "biome": "minecraft:cherry_grove",
+              "parameters": {
+                "temperature": 0.11,
+                "humidity": 0,
+                "continentalness": 0,
+                "erosion": 0,
+                "weirdness": 0.66,
+                "depth": 0,
+                "offset": 0
+              }
+            }
+          ]
+        },
+        "settings": "minecraft:overworld"
+      }
+    },
+    "minecraft:the_end": {
+      "type": "minecraft:the_end",
+      "generator": {
+        "type": "superior_flat:end",
+        "biome_source": {
+          "type": "minecraft:the_end"
+        },
+        "settings": "minecraft:end"
+      }
+    },
+    "minecraft:the_nether": {
+      "type": "minecraft:the_nether",
+      "generator": {
+        "type": "superior_flat:nether",
+        "biome_source": {
+          "type": "minecraft:multi_noise",
+          "preset": "minecraft:nether"
+        },
+        "settings": "minecraft:nether"
+      }
+    }
+  }
+}
