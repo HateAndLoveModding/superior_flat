@@ -1,4 +1,4 @@
-package com.example.superior_flat.Leaves;
+package com.example.superior_flat.BottomlessPit;
 
 import com.google.common.base.Suppliers;
 import com.mojang.serialization.Codec;
@@ -33,18 +33,20 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
-public class LeavesGenerator extends NoiseChunkGenerator {
+public class BottomlessPitNetherGenerator extends NoiseChunkGenerator {
     public final Registry<DoublePerlinNoiseSampler.NoiseParameters> noiseRegistry;
     public final Supplier<List<PlacedFeatureIndexer.IndexedFeatures>> indexedFeaturesListSupplier;
-    public static List<Block> leafBlocks = new ArrayList<>();
 
-    public static final Codec<LeavesGenerator> CODEC =
+    public static List<Block> bottomlessPitNetherBlocks = new ArrayList<>();
+
+    public static final Codec<BottomlessPitNetherGenerator> CODEC =
             RecordCodecBuilder.create(instance -> NoiseChunkGenerator.createStructureSetRegistryGetter(instance).and(instance.group(
-                            RegistryOps.createRegistryCodec(Registry.NOISE_KEY).forGetter(generator -> generator.noiseRegistry),
-                            (BiomeSource.CODEC.fieldOf("biome_source")).forGetter(LeavesGenerator::getBiomeSource),
-                            (ChunkGeneratorSettings.REGISTRY_CODEC.fieldOf("settings")).forGetter(LeavesGenerator::getSettings)))
-                    .apply(instance, instance.stable(LeavesGenerator::new)));
-    public LeavesGenerator(Registry<StructureSet> structureSetRegistry, Registry<DoublePerlinNoiseSampler.NoiseParameters> noiseRegistry, BiomeSource populationSource, RegistryEntry<ChunkGeneratorSettings> settings) {
+                    RegistryOps.createRegistryCodec(Registry.NOISE_KEY).forGetter(generator -> generator.noiseRegistry),
+                            (BiomeSource.CODEC.fieldOf("biome_source")).forGetter(BottomlessPitNetherGenerator::getBiomeSource),
+                            (ChunkGeneratorSettings.REGISTRY_CODEC.fieldOf("settings")).forGetter(BottomlessPitNetherGenerator::getSettings)))
+                    .apply(instance, instance.stable(BottomlessPitNetherGenerator::new)));
+
+    public BottomlessPitNetherGenerator(Registry<StructureSet> structureSetRegistry, Registry<DoublePerlinNoiseSampler.NoiseParameters> noiseRegistry, BiomeSource populationSource, RegistryEntry<ChunkGeneratorSettings> settings) {
         super(structureSetRegistry, noiseRegistry, populationSource, settings);
 
         this.noiseRegistry = noiseRegistry;
@@ -53,8 +55,8 @@ public class LeavesGenerator extends NoiseChunkGenerator {
 
     @Override
     public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world, NoiseConfig noiseConfig) {
-        for(int i = Math.min(leafBlocks.size(), world.getTopY()) - 1; i >= 0; --i) {
-            BlockState blockState = leafBlocks.get(i).getDefaultState();
+        for(int i = Math.min(bottomlessPitNetherBlocks.size(), world.getTopY()) - 1; i >= 0; --i) {
+            BlockState blockState = bottomlessPitNetherBlocks.get(i).getDefaultState();
             if (blockState != null && heightmap.getBlockPredicate().test(blockState)) {
                 return world.getBottomY() + i + 1;
             }
@@ -65,7 +67,7 @@ public class LeavesGenerator extends NoiseChunkGenerator {
 
     @Override
     public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world, NoiseConfig noiseConfig) {
-        return new VerticalBlockSample(world.getBottomY(), leafBlocks.stream().limit(world.getHeight()).map((state) -> state == null ? Blocks.AIR.getDefaultState() : state.getDefaultState()).toArray(BlockState[]::new));
+        return new VerticalBlockSample(world.getBottomY(), bottomlessPitNetherBlocks.stream().limit(world.getHeight()).map((state) -> state == null ? Blocks.AIR.getDefaultState() : state.getDefaultState()).toArray(BlockState[]::new));
     }
     @Override
     public CompletableFuture<Chunk> populateNoise(
@@ -73,8 +75,8 @@ public class LeavesGenerator extends NoiseChunkGenerator {
         BlockPos.Mutable mutable = new BlockPos.Mutable();
         Heightmap heightmap = chunk.getHeightmap(Heightmap.Type.OCEAN_FLOOR_WG);
         Heightmap heightmap2 = chunk.getHeightmap(Heightmap.Type.WORLD_SURFACE_WG);
-        for (int i = 0; i < Math.min(chunk.getHeight(), leafBlocks.size()); ++i) {
-            BlockState blockState = leafBlocks.get(i).getDefaultState();
+        for (int i = 0; i < Math.min(chunk.getHeight(), bottomlessPitNetherBlocks.size()); ++i) {
+            BlockState blockState = bottomlessPitNetherBlocks.get(i).getDefaultState();
             for (int k = 0; k < 16; ++k) {
                 for (int l = 0; l < 16; ++l) {
                     mutable.set(k, i - 63, l);
@@ -95,12 +97,13 @@ public class LeavesGenerator extends NoiseChunkGenerator {
     public void buildSurface(ChunkRegion region, StructureAccessor structures, NoiseConfig noiseConfig, Chunk chunk) {
     }
     @Override
-    protected Codec<? extends LeavesGenerator> getCodec() {
+    protected Codec<? extends BottomlessPitNetherGenerator> getCodec() {
         return CODEC;
     }
 
     static {
-        for (int i = 0; i < 65; i++) {leafBlocks.add(Blocks.AIR);}
-        for (int i = 0; i < 3; i++) {leafBlocks.add(Blocks.OAK_LEAVES);}
+        for (int i = 0; i < 63; i++) {bottomlessPitNetherBlocks.add(Blocks.AIR);}
+        for (int i = 0; i < 2; i++) {bottomlessPitNetherBlocks.add(Blocks.BLACKSTONE);}
+        for (int i = 0; i < 3; i++) {bottomlessPitNetherBlocks.add(Blocks.NETHERRACK);}
     }
 }

@@ -1,4 +1,4 @@
-package com.example.superior_flat.Leaves;
+package com.example.superior_flat.Desert;
 
 import com.google.common.base.Suppliers;
 import com.mojang.serialization.Codec;
@@ -29,22 +29,26 @@ import net.minecraft.world.gen.noise.NoiseConfig;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
-public class LeavesGenerator extends NoiseChunkGenerator {
+public class SoulSandValleyNetherGenerator extends NoiseChunkGenerator {
     public final Registry<DoublePerlinNoiseSampler.NoiseParameters> noiseRegistry;
     public final Supplier<List<PlacedFeatureIndexer.IndexedFeatures>> indexedFeaturesListSupplier;
-    public static List<Block> leafBlocks = new ArrayList<>();
 
-    public static final Codec<LeavesGenerator> CODEC =
+    public static List<Block> soulSandValleyNetherBlocks = new ArrayList<>();
+    public static List<Block> soulSoilValleyNetherBlocks = new ArrayList<>();
+
+    public static final Codec<SoulSandValleyNetherGenerator> CODEC =
             RecordCodecBuilder.create(instance -> NoiseChunkGenerator.createStructureSetRegistryGetter(instance).and(instance.group(
                             RegistryOps.createRegistryCodec(Registry.NOISE_KEY).forGetter(generator -> generator.noiseRegistry),
-                            (BiomeSource.CODEC.fieldOf("biome_source")).forGetter(LeavesGenerator::getBiomeSource),
-                            (ChunkGeneratorSettings.REGISTRY_CODEC.fieldOf("settings")).forGetter(LeavesGenerator::getSettings)))
-                    .apply(instance, instance.stable(LeavesGenerator::new)));
-    public LeavesGenerator(Registry<StructureSet> structureSetRegistry, Registry<DoublePerlinNoiseSampler.NoiseParameters> noiseRegistry, BiomeSource populationSource, RegistryEntry<ChunkGeneratorSettings> settings) {
+                            (BiomeSource.CODEC.fieldOf("biome_source")).forGetter(SoulSandValleyNetherGenerator::getBiomeSource),
+                            (ChunkGeneratorSettings.REGISTRY_CODEC.fieldOf("settings")).forGetter(SoulSandValleyNetherGenerator::getSettings)))
+                    .apply(instance, instance.stable(SoulSandValleyNetherGenerator::new)));
+
+    public SoulSandValleyNetherGenerator(Registry<StructureSet> structureSetRegistry, Registry<DoublePerlinNoiseSampler.NoiseParameters> noiseRegistry, BiomeSource populationSource, RegistryEntry<ChunkGeneratorSettings> settings) {
         super(structureSetRegistry, noiseRegistry, populationSource, settings);
 
         this.noiseRegistry = noiseRegistry;
@@ -53,8 +57,8 @@ public class LeavesGenerator extends NoiseChunkGenerator {
 
     @Override
     public int getHeight(int x, int z, Heightmap.Type heightmap, HeightLimitView world, NoiseConfig noiseConfig) {
-        for(int i = Math.min(leafBlocks.size(), world.getTopY()) - 1; i >= 0; --i) {
-            BlockState blockState = leafBlocks.get(i).getDefaultState();
+        for(int i = Math.min(soulSandValleyNetherBlocks.size(), world.getTopY()) - 1; i >= 0; --i) {
+            BlockState blockState = soulSandValleyNetherBlocks.get(i).getDefaultState();
             if (blockState != null && heightmap.getBlockPredicate().test(blockState)) {
                 return world.getBottomY() + i + 1;
             }
@@ -65,7 +69,7 @@ public class LeavesGenerator extends NoiseChunkGenerator {
 
     @Override
     public VerticalBlockSample getColumnSample(int x, int z, HeightLimitView world, NoiseConfig noiseConfig) {
-        return new VerticalBlockSample(world.getBottomY(), leafBlocks.stream().limit(world.getHeight()).map((state) -> state == null ? Blocks.AIR.getDefaultState() : state.getDefaultState()).toArray(BlockState[]::new));
+        return new VerticalBlockSample(world.getBottomY(), soulSandValleyNetherBlocks.stream().limit(world.getHeight()).map((state) -> state == null ? Blocks.AIR.getDefaultState() : state.getDefaultState()).toArray(BlockState[]::new));
     }
     @Override
     public CompletableFuture<Chunk> populateNoise(
@@ -73,12 +77,18 @@ public class LeavesGenerator extends NoiseChunkGenerator {
         BlockPos.Mutable mutable = new BlockPos.Mutable();
         Heightmap heightmap = chunk.getHeightmap(Heightmap.Type.OCEAN_FLOOR_WG);
         Heightmap heightmap2 = chunk.getHeightmap(Heightmap.Type.WORLD_SURFACE_WG);
-        for (int i = 0; i < Math.min(chunk.getHeight(), leafBlocks.size()); ++i) {
-            BlockState blockState = leafBlocks.get(i).getDefaultState();
+        Random random = new Random();
+        for (int i = 0; i < Math.min(chunk.getHeight(), soulSandValleyNetherBlocks.size()); ++i) {
+            BlockState blockState = soulSandValleyNetherBlocks.get(i).getDefaultState();
             for (int k = 0; k < 16; ++k) {
                 for (int l = 0; l < 16; ++l) {
                     mutable.set(k, i - 63, l);
                     chunk.setBlockState(mutable, blockState, false);
+                    if (random.nextBoolean()) {
+                        blockState = soulSoilValleyNetherBlocks.get(i).getDefaultState();
+                    } else {
+                        blockState = soulSandValleyNetherBlocks.get(i).getDefaultState();
+                    }
                     heightmap.trackUpdate(k, i - 63, l, blockState);
                     heightmap2.trackUpdate(k, i - 63, l, blockState);
                 }
@@ -95,12 +105,17 @@ public class LeavesGenerator extends NoiseChunkGenerator {
     public void buildSurface(ChunkRegion region, StructureAccessor structures, NoiseConfig noiseConfig, Chunk chunk) {
     }
     @Override
-    protected Codec<? extends LeavesGenerator> getCodec() {
+    protected Codec<? extends SoulSandValleyNetherGenerator> getCodec() {
         return CODEC;
     }
 
     static {
-        for (int i = 0; i < 65; i++) {leafBlocks.add(Blocks.AIR);}
-        for (int i = 0; i < 3; i++) {leafBlocks.add(Blocks.OAK_LEAVES);}
+        for (int i = 0; i < 63; i++) {soulSandValleyNetherBlocks.add(Blocks.AIR);}
+        soulSandValleyNetherBlocks.add(Blocks.BEDROCK);
+        for (int i = 0; i < 3; i++) {soulSandValleyNetherBlocks.add(Blocks.SOUL_SAND);}
+
+        for (int i = 0; i < 63; i++) {soulSoilValleyNetherBlocks.add(Blocks.AIR);}
+        soulSoilValleyNetherBlocks.add(Blocks.BEDROCK);
+        for (int i = 0; i < 3; i++) {soulSoilValleyNetherBlocks.add(Blocks.SOUL_SOIL);}
     }
 }
