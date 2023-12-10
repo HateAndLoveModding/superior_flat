@@ -4,12 +4,6 @@
   "generator.minecraft.z3_leaves": "SF Layers of Leaves!",
   "generator.minecraft.z40_villages": "SF Villages",
   "generator.minecraft.z41_forest": "SF Forests",
-  "generator.minecraft.z5_bottomless_pit": "SF Bottomless Pit.",
-  "generator.minecraft.z6_water_world": "SF Water World.",
-  "generator.minecraft.z7_lava_world": "SF Water and Lava World.",
-  "generator.minecraft.z8_tunnelers_dream": "SF Tunnelers Dream.",
-  "generator.minecraft.z90_desert": "SF Desert.",
   "generator.minecraft.z91_snow": "SF Snow World.",
-
-  "flat_world_preset.minecraft.custom_snowy_kingdom": "SF Snowy Kingdom."
+  "generator.minecraft.z5_sort_of_flat": "Sort Of Flat."
 }
