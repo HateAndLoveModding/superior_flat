@@ -3,45 +3,33 @@ package com.example.superior_flat.Default;
 import com.google.common.base.Suppliers;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.ints.IntArraySet;
-import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.entry.RegistryEntryList;
-import net.minecraft.util.crash.CrashException;
-import net.minecraft.util.crash.CrashReport;
-import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.math.random.CheckedRandom;
-import net.minecraft.util.math.random.ChunkRandom;
-import net.minecraft.util.math.random.RandomSeed;
-import net.minecraft.util.math.random.Xoroshiro128PlusPlusRandom;
-import net.minecraft.world.*;
+import net.minecraft.world.ChunkRegion;
+import net.minecraft.world.HeightLimitView;
+import net.minecraft.world.Heightmap;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.biome.source.BiomeAccess;
 import net.minecraft.world.biome.source.BiomeSource;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.gen.GenerationStep;
 import net.minecraft.world.gen.StructureAccessor;
 import net.minecraft.world.gen.chunk.*;
-import net.minecraft.world.gen.feature.PlacedFeature;
 import net.minecraft.world.gen.feature.util.PlacedFeatureIndexer;
 import net.minecraft.world.gen.noise.NoiseConfig;
-import net.minecraft.world.gen.structure.Structure;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 public class OverworldGenerator extends NoiseChunkGenerator {
     public final RegistryEntry<ChunkGeneratorSettings> settings;
     public final Supplier<AquiferSampler.FluidLevelSampler> fluidLevelSampler;
@@ -96,12 +84,12 @@ public class OverworldGenerator extends NoiseChunkGenerator {
     }
     @Override
     public CompletableFuture<Chunk> populateNoise(
-            Executor executor, Blender blender, NoiseConfig noiseConfig, StructureAccessor accessor, Chunk chunk) {
+            Executor executor, Blender blender, NoiseConfig noiseConfig, StructureAccessor structureAccessor, Chunk chunk) {
         BlockPos.Mutable mutable = new BlockPos.Mutable();
         Heightmap heightmap = chunk.getHeightmap(Heightmap.Type.OCEAN_FLOOR_WG);
         Heightmap heightmap2 = chunk.getHeightmap(Heightmap.Type.WORLD_SURFACE_WG);
         Random random = new Random();
-        Registry<Biome> biomeRegistry = accessor.getRegistryManager().get(RegistryKeys.BIOME);
+        Registry<Biome> biomeRegistry = structureAccessor.getRegistryManager().get(RegistryKeys.BIOME);
         for (int i = 0; i < Math.min(chunk.getHeight(), worldBlocks.size()); ++i) {
             BlockState blockState;
             for (int k = 0; k < 16; ++k) {
@@ -116,8 +104,6 @@ public class OverworldGenerator extends NoiseChunkGenerator {
                         blockState = windsweptGravellyHillBlocks.get(i).getDefaultState();
                     } else if (currentBiome.equals(biomeRegistry.get(BiomeKeys.DESERT)) || currentBiome.equals(biomeRegistry.get(BiomeKeys.SNOWY_BEACH))) {
                         blockState = desertBlocks.get(i).getDefaultState();
-                    } else if (currentBiome.equals(biomeRegistry.get(BiomeKeys.STONY_SHORE)) || currentBiome.equals(biomeRegistry.get(BiomeKeys.JAGGED_PEAKS)) || currentBiome.equals(biomeRegistry.get(BiomeKeys.FROZEN_PEAKS)) || currentBiome.equals(biomeRegistry.get(BiomeKeys.STONY_PEAKS))) {
-                        blockState = stoneBlocks.get(i).getDefaultState();
                     } else if (currentBiome.equals(biomeRegistry.get(BiomeKeys.BADLANDS)) || currentBiome.equals(biomeRegistry.get(BiomeKeys.WOODED_BADLANDS)) || currentBiome.equals(biomeRegistry.get(BiomeKeys.ERODED_BADLANDS))) {
                         blockState = badlandsBlocks.get(i).getDefaultState();
                     } else if (currentBiome.equals(biomeRegistry.get(BiomeKeys.BEACH))) {
@@ -146,9 +132,9 @@ public class OverworldGenerator extends NoiseChunkGenerator {
                     chunk.setBlockState(mutable, blockState, false);
                     heightmap.trackUpdate(k, i - 63, l, blockState);
                     heightmap2.trackUpdate(k, i - 63, l, blockState);
+                    }
                 }
             }
-        }
 
         return CompletableFuture.completedFuture(chunk);
     }

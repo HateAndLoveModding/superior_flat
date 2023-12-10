@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.0-SNAPSHOT'
+    id 'fabric-loom' version '1.3-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -15,9 +15,7 @@ version '0.1'
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
-loom {
-    accessWidenerPath = file("src/main/resources/${project.mod_id}.accesswidener")
-}
+loom {}
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"

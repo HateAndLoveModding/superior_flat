@@ -3,6 +3,7 @@
   "package": "com.example.superior_flat.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "MixinIntegratedServerLoader"
   ],
   "injectors": {
     "defaultRequire": 1

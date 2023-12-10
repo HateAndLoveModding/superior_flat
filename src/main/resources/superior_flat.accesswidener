@@ -1,5 +1,0 @@
-accessWidener	v1	named
-extendable	class	net/minecraft/world/gen/chunk/NoiseChunkGenerator
-accessible method net/minecraft/world/gen/chunk/NoiseChunkGenerator createFluidLevelSampler (Lnet/minecraft/world/gen/chunk/ChunkGeneratorSettings;)Lnet/minecraft/world/gen/chunk/AquiferSampler$FluidLevelSampler;
-accessible field net/minecraft/world/gen/chunk/ChunkGenerator biomeSource Lnet/minecraft/world/biome/source/BiomeSource;
-accessible field net/minecraft/world/gen/chunk/NoiseChunkGenerator settings Lnet/minecraft/registry/entry/RegistryEntry;

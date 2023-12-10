@@ -6,15 +6,22 @@
         "type": "superior_flat:overworld",
         "biome_source": {
           "type": "minecraft:multi_noise",
+          "structure_overrides": [
+            "minecraft:villages", {
+              "spacing": 64,
+              "separation": 16,
+              "size": 100
+            }
+          ],
           "biomes": [
             {
               "biome": "minecraft:desert",
               "parameters": {
                 "temperature": 1,
-                "humidity": 1,
-                "continentalness": 1,
-                "erosion": 1,
-                "weirdness": 0,
+                "humidity": 0.3,
+                "continentalness": 0.3,
+                "erosion": 0.5,
+                "weirdness": 0.0,
                 "depth": 0,
                 "offset": 0
               }
@@ -22,11 +29,11 @@
             {
               "biome": "minecraft:plains",
               "parameters": {
-                "temperature": 1,
-                "humidity": 1,
-                "continentalness": 1,
-                "erosion": 0,
-                "weirdness": 0,
+                "temperature": 0.8,
+                "humidity": 0.4,
+                "continentalness": 0.15,
+                "erosion": 0.1,
+                "weirdness": 0.0,
                 "depth": 0,
                 "offset": 0
               }
@@ -34,11 +41,11 @@
             {
               "biome": "minecraft:savanna",
               "parameters": {
-                "temperature": 1,
-                "humidity": 1,
-                "continentalness": 0,
-                "erosion": 1,
-                "weirdness": 0,
+                "temperature": 1.1,
+                "humidity": 0.2,
+                "continentalness": 0.3,
+                "erosion": 0.6,
+                "weirdness": 0.0,
                 "depth": 0,
                 "offset": 0
               }
@@ -46,11 +53,11 @@
             {
               "biome": "minecraft:snowy_plains",
               "parameters": {
-                "temperature": 0,
-                "humidity": 1,
-                "continentalness": 1,
-                "erosion": 1,
-                "weirdness": 0,
+                "temperature": 0.0,
+                "humidity": 0.4,
+                "continentalness": 0.22,
+                "erosion": 0.7,
+                "weirdness": 0.0,
                 "depth": 0,
                 "offset": 0
               }
@@ -58,11 +65,11 @@
             {
               "biome": "minecraft:taiga",
               "parameters": {
-                "temperature": 0,
-                "humidity": 1,
-                "continentalness": 1,
-                "erosion": 1,
-                "weirdness": 1,
+                "temperature": 0.2,
+                "humidity": 0.7,
+                "continentalness": 0.3,
+                "erosion": 0.8,
+                "weirdness": 0.3,
                 "depth": 0,
                 "offset": 0
               }
