@@ -15,7 +15,9 @@ version '0.1'
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
-loom {}
+loom {
+    accessWidenerPath = file("src/main/resources/${project.mod_id}.accesswidener")
+}
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"

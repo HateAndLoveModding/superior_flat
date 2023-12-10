@@ -18,6 +18,7 @@
       "com.example.superior_flat.superior_flat"
     ]
   },
+  "accessWidener": "superior_flat.accesswidener",
   "mixins": [
     "mod.mixins.json"
   ],
